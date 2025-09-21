@@ -1,0 +1,5 @@
+{
+  "name": "Photo Studio",
+  "description": "An AI-powered creative suite for generating and editing media. This initial version focuses on an image editing playground using Gemini.",
+  "requestFramePermissions": []
+}
