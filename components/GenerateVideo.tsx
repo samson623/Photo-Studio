@@ -74,7 +74,15 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
             setOutputVideoUrl(url);
             incrementVideoUsage(VIDEO_GENERATION_COST_SECONDS);
         } catch (err) {
-            setError(err instanceof Error ? err.message : "An unknown error occurred during video generation.");
+            let errorMessage = "An unknown error occurred during video generation.";
+            if (err instanceof Error) {
+                if (err.message.includes('quota exceeded') || err.message.includes('RESOURCE_EXHAUSTED')) {
+                    errorMessage = "Your API usage has exceeded the lifetime quota for this model. Please check your API key's quota settings in your Google Cloud project or Google AI Studio.";
+                } else {
+                    errorMessage = err.message;
+                }
+            }
+            setError(errorMessage);
         } finally {
             setIsLoading(false);
             setProgressMessage('');
