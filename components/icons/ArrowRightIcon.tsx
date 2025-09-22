@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const ArrowRightIcon: React.FC<{ className?: string }> = ({ className }) => (

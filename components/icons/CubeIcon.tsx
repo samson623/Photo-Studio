@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const CubeIcon: React.FC<{ className?: string }> = ({ className }) => (

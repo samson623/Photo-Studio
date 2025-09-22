@@ -1,3 +1,4 @@
+
 export enum Page {
   Dashboard = 'Dashboard',
   Image = 'Generate - Image',

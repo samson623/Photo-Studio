@@ -1,3 +1,4 @@
+
 const DB_NAME = 'PhotoStudioDB';
 const STORE_NAME = 'media_blobs';
 const DB_VERSION = 1;

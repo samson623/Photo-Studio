@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { generateVideo } from '../services/geminiService';
 import { ImageDropzone, ImageFile } from './ImageDropzone';
