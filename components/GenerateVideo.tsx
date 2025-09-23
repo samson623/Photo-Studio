@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { generateVideo } from '../services/geminiService';
+import { generateVideo, calculateVideoCost, PRICING } from '../services/falService';
 import { ImageDropzone, ImageFile } from './ImageDropzone';
 import { DownloadIcon } from './icons/DownloadIcon';
 import { SaveIcon } from './icons/SaveIcon';
@@ -13,7 +13,7 @@ interface GenerateVideoProps {
   clearInitialImage: () => void;
 }
 
-const VIDEO_GENERATION_COST_SECONDS = 5; // Assume each video generation costs 5s of quota
+type VideoModel = 'hailuo' | 'framepack';
 
 const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitialImage }) => {
     const { user, incrementVideoUsage, addToGallery } = useAuth();
@@ -25,6 +25,8 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
     const [error, setError] = useState<string | null>(null);
     const [progressMessage, setProgressMessage] = useState<string>('');
     const [isSaved, setIsSaved] = useState<boolean>(false);
+    const [videoModel, setVideoModel] = useState<VideoModel>('hailuo');
+    const [duration] = useState<number>(6); // Hailuo: 6s, Framepack: 5s
 
     useEffect(() => {
         if (initialImage) {
@@ -55,8 +57,10 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
     };
 
     const handleGenerate = async () => {
+        const videoDuration = videoModel === 'hailuo' ? 6 : 5;
         const userPlan = PLANS[user!.plan];
-        if(user!.videoSecondsUsed + VIDEO_GENERATION_COST_SECONDS > userPlan.videoSecondsIncluded) {
+        
+        if(user!.videoSecondsUsed + videoDuration > userPlan.videoSecondsIncluded) {
             setError(`Generating another video would exceed your quota of ${userPlan.videoSecondsIncluded} seconds for the '${user!.plan}' plan. Please upgrade.`);
             return;
         }
@@ -65,23 +69,20 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
             setError("A text prompt is required to generate a video.");
             return;
         }
+        
         setIsLoading(true);
         setError(null);
         setOutputVideoUrl(null);
         setIsSaved(false);
 
         try {
-            const url = await generateVideo(prompt, image?.file || null, setProgressMessage);
+            const url = await generateVideo(prompt, image?.file || null, setProgressMessage, videoModel);
             setOutputVideoUrl(url);
-            incrementVideoUsage(VIDEO_GENERATION_COST_SECONDS);
+            incrementVideoUsage(videoDuration);
         } catch (err) {
             let errorMessage = "An unknown error occurred during video generation.";
             if (err instanceof Error) {
-                if (err.message.includes('quota exceeded') || err.message.includes('RESOURCE_EXHAUSTED')) {
-                    errorMessage = "Your API usage has exceeded the lifetime quota for this model. Please check your API key's quota settings in your Google Cloud project or Google AI Studio.";
-                } else {
-                    errorMessage = err.message;
-                }
+                errorMessage = err.message;
             }
             setError(errorMessage);
         } finally {
@@ -132,22 +133,30 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
 
     return (
         <div>
-            <h2 className="text-3xl font-bold text-white">Video Generation</h2>
-            <p className="text-gray-400 mt-2 mb-8">Create short video clips from a text prompt and an optional starting image. You can also add a narration script to be read aloud during playback.</p>
+            <h2 className="text-3xl font-bold text-white">Video Generation Studio</h2>
+            <p className="text-gray-400 mt-2 mb-8">Create stunning video clips using AI models from Fal.ai. Choose between Hailuo-02 Pro for premium quality or Framepack for cost-effective generation.</p>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left/Main Column */}
                 <div className="lg:col-span-2 space-y-6">
                     <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
                          <h3 className="text-lg font-semibold text-white mb-4">Model Configuration</h3>
-                        <div>
-                            <label className="text-sm font-medium text-gray-300 block mb-2">Model</label>
-                            <select disabled className="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-gray-300 focus:ring-blue-500 focus:border-blue-500 cursor-not-allowed">
-                                <option>veo-2.0-generate-001</option>
-                            </select>
-                            <p className="text-xs text-gray-400 mt-2">
-                                Note: For video generation, we use the powerful <strong>veo-2.0-generate-001</strong> model.
-                            </p>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-sm font-medium text-gray-300 block mb-2">Video Model</label>
+                                <select 
+                                    value={videoModel} 
+                                    onChange={(e) => setVideoModel(e.target.value as VideoModel)}
+                                    className="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="hailuo">Hailuo-02 Pro - Premium Quality ($0.08/sec)</option>
+                                    <option value="framepack">Framepack - Cost Effective (~$0.033/sec)</option>
+                                </select>
+                            </div>
+                            <div className="text-xs text-gray-400 bg-gray-800/50 p-3 rounded">
+                                <p className="mb-1"><strong>Hailuo-02 Pro:</strong> 6-second 1080p videos with superior quality and motion</p>
+                                <p><strong>Framepack:</strong> 5-second videos optimized for speed and cost efficiency</p>
+                            </div>
                         </div>
                     </div>
 
@@ -241,11 +250,30 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
                     <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
                         <h3 className="text-lg font-semibold text-white mb-4">How it works</h3>
                         <ul className="space-y-3 text-sm text-gray-400">
-                            <li className="flex items-start"><span className="bg-gray-700 text-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 shrink-0">1</span> Describe the video scene in the prompt.</li>
+                            <li className="flex items-start"><span className="bg-gray-700 text-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 shrink-0">1</span> Choose your video model and describe the scene.</li>
                             <li className="flex items-start"><span className="bg-gray-700 text-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 shrink-0">2</span> Optionally add a script for narration.</li>
                             <li className="flex items-start"><span className="bg-gray-700 text-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 shrink-0">3</span> Optionally, upload a starting image.</li>
-                            <li className="flex items-start"><span className="bg-gray-700 text-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 shrink-0">4</span> Press Generate. The process can take several minutes.</li>
+                            <li className="flex items-start"><span className="bg-gray-700 text-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs mr-3 shrink-0">4</span> Press Generate and wait for processing.</li>
                         </ul>
+                        <div className="bg-blue-900/40 border border-blue-800/60 p-3 rounded-md mt-4">
+                            <p className="text-xs text-blue-300">Powered by Fal.ai's advanced video generation models.</p>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
+                        <h3 className="text-lg font-semibold text-white mb-4">Cost Estimator</h3>
+                        <div className="space-y-2 text-sm">
+                            <div className="flex justify-between"><span className="text-gray-400">Model</span><span>{videoModel === 'hailuo' ? 'Hailuo-02 Pro' : 'Framepack'}</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">Duration</span><span>{videoModel === 'hailuo' ? '6' : '5'} seconds</span></div>
+                            <div className="flex justify-between"><span className="text-gray-400">Rate per second</span><span>${PRICING.video[videoModel]}</span></div>
+                            <hr className="border-gray-700 my-2"/>
+                            <div className="flex justify-between font-bold text-lg">
+                                <span className="text-gray-200">Est. cost:</span>
+                                <span className="text-green-400">
+                                    ${calculateVideoCost(videoModel === 'hailuo' ? 6 : 5, videoModel).toFixed(3)}
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
