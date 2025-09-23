@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Clear Storage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #1a202c;
+            color: white;
+        }
+        button {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #2c5aa0;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #2d3748;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Storage Debug Tool</h1>
+    
+    <button onclick="clearStorage()">Clear All Storage</button>
+    <button onclick="checkStorage()">Check Storage</button>
+    <button onclick="goToApp()">Go to App</button>
+    
+    <div id="status" class="status">Ready</div>
+    
+    <script>
+        function clearStorage() {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Clear IndexedDB
+                indexedDB.deleteDatabase('PhotoStudioDB');
+                
+                document.getElementById('status').innerHTML = 'Storage cleared successfully!';
+            } catch (error) {
+                document.getElementById('status').innerHTML = 'Error clearing storage: ' + error.message;
+            }
+        }
+        
+        function checkStorage() {
+            const status = document.getElementById('status');
+            const localStorageKeys = Object.keys(localStorage);
+            const sessionStorageKeys = Object.keys(sessionStorage);
+            
+            status.innerHTML = `
+                <h3>LocalStorage Keys:</h3>
+                <pre>${JSON.stringify(localStorageKeys, null, 2)}</pre>
+                <h3>SessionStorage Keys:</h3>
+                <pre>${JSON.stringify(sessionStorageKeys, null, 2)}</pre>
+            `;
+        }
+        
+        function goToApp() {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

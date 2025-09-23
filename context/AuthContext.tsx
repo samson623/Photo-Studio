@@ -54,7 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             name: 'Demo User',
             email: 'demo@example.com',
             password: 'password', // Simple password for demo
-            picture: `https://api.dicebear.com/8.x/initials/svg?seed=Demo%20User`,
+            picture: `https://ui-avatars.com/api/?name=Demo+User&background=3B82F6&color=fff&size=128`,
             plan: 'Free',
             imagesUsed: 0,
             videoSecondsUsed: 0,
@@ -117,7 +117,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           name,
           email,
           password,
-          picture: `https://api.dicebear.com/8.x/initials/svg?seed=${encodeURIComponent(name)}`,
+          picture: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=3B82F6&color=fff&size=128`,
           plan: 'Free',
           imagesUsed: 0,
           videoSecondsUsed: 0,
