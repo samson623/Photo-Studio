@@ -1,23 +1,24 @@
-# 🎨 Photo Studio - AI-Powered Creative Studio
+# 🎨 Fal.ai Studio - AI-Powered Creative Studio
 
-A cutting-edge React application that harnesses the power of AI to generate stunning images and videos. Built with Fal.ai's state-of-the-art FLUX.1 models and advanced video generation technology.
+A cutting-edge React application that harnesses the power of Fal.ai to generate stunning images and videos. Built with FLUX.1 models for image generation and Hailuo-02 Pro/Framepack for video creation. **Fully migrated from Google Gemini to Fal.ai for superior AI capabilities.**
 
 ## 🌟 Live Demo
 
-**🚀 [Try it now](https://3000-iakxjl0scsg0qu6kfejyi-6532622b.e2b.dev)** | **📱 [Production Build](https://8080-iakxjl0scsg0qu6kfejyi-6532622b.e2b.dev)**
+**🚀 [Try it now](https://3006-iakxjl0scsg0qu6kfejyi-6532622b.e2b.dev)** | **📱 Mobile-Optimized Interface**
 
 > *Experience the future of AI-powered content creation directly in your browser!*
 
 ## ✨ Features
 
-- 🎨 **AI Image Generation**: Create breathtaking images with FLUX.1 [schnell] and [dev] models
-- ✏️ **Smart Image Editing**: Transform existing images with AI-powered modifications
-- 🎬 **Video Creation**: Generate professional videos using Hailuo-02 Pro and Framepack models
-- 💾 **Personal Gallery**: Save, organize, and manage your creative works locally
-- 👤 **User System**: Complete user management with subscription tiers and usage tracking
-- 💰 **Transparent Pricing**: Real-time cost calculation for all AI operations
-- 📱 **Responsive Design**: Seamless experience across desktop, tablet, and mobile
-- 🔧 **Developer Tools**: Built-in diagnostics and error handling for smooth operation
+- 🎨 **FLUX.1 Image Generation**: Create breathtaking images with schnell ($0.003/MP) and dev ($0.025/MP) models
+- ✏️ **Smart Image Editing**: Transform existing images with AI-powered modifications using FLUX.1
+- 🎬 **Professional Video Creation**: Generate videos with Hailuo-02 Pro ($0.08/sec) and Framepack (~$0.033/sec)
+- 💾 **Personal Gallery**: Save, organize, and manage your creative works locally with IndexedDB
+- 👤 **User Management**: Complete authentication system with subscription tiers and usage tracking
+- 💰 **Cost Transparency**: Real-time cost calculation and pricing display for all AI operations
+- 📱 **Responsive Design**: Optimized experience across desktop, tablet, and mobile devices
+- 🔧 **Developer Experience**: Built-in diagnostics, error boundaries, and comprehensive error handling
+- 🚀 **Pure Fal.ai Integration**: Complete migration from Google services to Fal.ai's superior AI platform
 
 ## 🚀 Quick Start
 
@@ -85,9 +86,19 @@ npm run preview  # Preview production build locally
   - Tree-shaken dependencies
   - Compressed assets for faster loading
 
+## 🔄 Migration Completed: Google → Fal.ai
+
+✅ **Successfully migrated from Google Gemini API to Fal.ai**
+- **Image Generation**: Replaced Gemini with FLUX.1 [schnell] and [dev] models
+- **Video Generation**: Replaced Gemini with Hailuo-02 Pro and Framepack models
+- **UI Updates**: Removed all Google branding and references
+- **Authentication**: Replaced "Continue with Google" with "Quick Demo Access"
+- **Cost Optimization**: Better pricing with Fal.ai's competitive rates
+- **Performance**: Improved generation quality and speed
+
 ## 🔧 API Configuration
 
-The app uses Fal.ai for all AI operations:
+The app uses Fal.ai exclusively for all AI operations:
 
 ### Supported Models
 
@@ -118,25 +129,28 @@ FAL_KEY=your_fal_ai_api_key_here
 
 ### Project Structure
 ```
-Photo-Studio/
+Fal.ai-Studio/
 ├── components/              # React UI components
-│   ├── icons/              # Custom SVG icons
+│   ├── icons/              # Custom SVG icons (including FalIcon)
 │   ├── ErrorBoundary.tsx   # Error handling wrapper
-│   ├── GenerateImage.tsx   # Image generation interface
-│   ├── GenerateVideo.tsx   # Video generation interface
-│   ├── Gallery.tsx         # Media gallery
+│   ├── GenerateImage.tsx   # FLUX.1 image generation interface
+│   ├── GenerateVideo.tsx   # Hailuo-02/Framepack video interface
+│   ├── Gallery.tsx         # Local media gallery with IndexedDB
+│   ├── Login.tsx           # Authentication (demo access)
 │   └── Layout.tsx          # Main app layout
 ├── context/                # React context providers
-│   └── AuthContext.tsx     # User authentication state
+│   └── AuthContext.tsx     # User state & demo authentication
 ├── services/               # External service integrations
-│   ├── falService.ts       # Fal.ai API integration
-│   └── dbService.ts        # IndexedDB operations
+│   ├── falService.ts       # Complete Fal.ai API integration
+│   └── dbService.ts        # IndexedDB operations for gallery
 ├── data/                   # Static configuration
-│   └── plans.ts            # Subscription plan data
+│   └── plans.ts            # Subscription tier definitions
 ├── types.ts                # TypeScript type definitions
 ├── App.tsx                 # Main application component
 ├── index.tsx              # Application entry point
-└── vite.config.ts         # Vite build configuration
+├── index.html             # Updated title: "Fal.ai Studio"
+├── vite.config.ts         # Vite config with cache-busting
+└── .env.local             # FAL_KEY configuration
 ```
 
 ## 🧪 Testing
