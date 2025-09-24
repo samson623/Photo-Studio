@@ -5,7 +5,7 @@ import { CubeIcon } from './icons/CubeIcon';
 import { EmailIcon } from './icons/EmailIcon';
 import { LockIcon } from './icons/LockIcon';
 import { ArrowRightIcon } from './icons/ArrowRightIcon';
-import { GoogleIcon } from './icons/GoogleIcon';
+import { CubeIcon as FalIcon } from './icons/CubeIcon';
 import { UserCircleIcon } from './icons/UserCircleIcon';
 
 const Login: React.FC = () => {
@@ -15,7 +15,7 @@ const Login: React.FC = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
-    const { signIn, signUp, signInWithGoogle } = useAuth();
+    const { signIn, signUp, quickDemoAccess } = useAuth();
 
     const handleAuthAction = async (action: () => Promise<void>) => {
         setError(null);
@@ -38,8 +38,8 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleGoogleSignIn = () => {
-        handleAuthAction(signInWithGoogle);
+    const handleDemoAccess = () => {
+        handleAuthAction(quickDemoAccess);
     };
 
     const toggleFormMode = () => {
@@ -55,8 +55,8 @@ const Login: React.FC = () => {
             <div className="w-full max-w-md bg-[#111827] bg-opacity-50 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-gray-700">
                 <div className="text-center mb-8">
                     <CubeIcon className="w-16 h-16 text-indigo-400 mx-auto mb-4" />
-                    <h1 className="text-4xl font-bold text-white">Photo Studio</h1>
-                    <p className="text-gray-400 mt-2">{isSignUp ? 'Create an account to get started' : 'Welcome back! Sign in to continue'}</p>
+                    <h1 className="text-4xl font-bold text-white">Fal.ai Studio</h1>
+                    <p className="text-gray-400 mt-2">{isSignUp ? 'Create an account to generate AI content' : 'Welcome back! Access FLUX.1 & Hailuo-02'}</p>
                     <div className="w-20 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 mx-auto mt-3 rounded-full"></div>
                 </div>
 
@@ -121,17 +121,17 @@ const Login: React.FC = () => {
 
                 <div className="my-6 flex items-center">
                     <div className="flex-grow border-t border-gray-600"></div>
-                    <span className="flex-shrink mx-4 text-gray-400 text-sm">Or continue with</span>
+                    <span className="flex-shrink mx-4 text-gray-400 text-sm">Or try demo</span>
                     <div className="flex-grow border-t border-gray-600"></div>
                 </div>
 
                 <button
-                    onClick={handleGoogleSignIn}
+                    onClick={handleDemoAccess}
                     disabled={loading}
-                    className="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
+                    className="w-full bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50"
                 >
-                    <GoogleIcon className="w-5 h-5 mr-3" />
-                    Continue with Google
+                    <FalIcon className="w-5 h-5 mr-3" />
+                    Quick Demo Access
                 </button>
 
                 <div className="text-center mt-8">

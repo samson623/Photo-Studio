@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   signIn: (email: string, password?: string) => Promise<void>;
   signUp: (name: string, email: string, password?: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  quickDemoAccess: () => Promise<void>;
   signOut: () => void;
   switchPlan: (plan: PlanTier) => void;
   incrementImageUsage: () => boolean;
@@ -131,8 +131,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await signIn(email, password);
   };
 
-  const signInWithGoogle = async (): Promise<void> => {
-    // This is a mock function that signs in the demo user
+  const quickDemoAccess = async (): Promise<void> => {
+    // Quick demo access that signs in the demo user
     await signIn('demo@example.com', 'password');
   }
 
@@ -217,7 +217,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signUp, signInWithGoogle, signOut, switchPlan, incrementImageUsage, incrementVideoUsage, addToGallery, removeFromGallery }}>
+    <AuthContext.Provider value={{ user, signIn, signUp, quickDemoAccess, signOut, switchPlan, incrementImageUsage, incrementVideoUsage, addToGallery, removeFromGallery }}>
       {children}
     </AuthContext.Provider>
   );

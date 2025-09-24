@@ -43,7 +43,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentPage, setCurrentPage }
       <header className="sticky top-0 z-20 bg-[#111827] bg-opacity-50 backdrop-blur-sm border-b border-gray-800">
         <nav className="container mx-auto px-6 py-3 flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-white">Photo Studio</h1>
+            <h1 className="text-xl font-bold text-white">Fal.ai Studio</h1>
             <div className="hidden md:flex items-center space-x-2">
               {navItems.map((page) => (
                 <NavItem
