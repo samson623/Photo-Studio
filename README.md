@@ -1,10 +1,10 @@
-# 🎨 Fal.ai Studio - AI-Powered Creative Studio
+# 🎨 Photo Studio - AI-Powered Creative Studio
 
-A cutting-edge React application that harnesses the power of Fal.ai to generate stunning images and videos. Built with FLUX.1 models for image generation and Hailuo-02 Pro/Framepack for video creation. **Fully migrated from Google Gemini to Fal.ai for superior AI capabilities.**
+A cutting-edge React application that harnesses the power of Fal.ai to generate stunning images and videos. Built with FLUX.1 models for image generation and Hailuo-02 Pro/Framepack for video creation. **AI models migrated from Google Gemini to Fal.ai for superior capabilities.**
 
 ## 🌟 Live Demo
 
-**🚀 [Try it now](https://3006-iakxjl0scsg0qu6kfejyi-6532622b.e2b.dev)** | **📱 Mobile-Optimized Interface**
+**🚀 [Try it now - Working Demo](https://3006-iakxjl0scsg0qu6kfejyi-6532622b.e2b.dev)** | **📱 Mobile-Optimized Interface**
 
 > *Experience the future of AI-powered content creation directly in your browser!*
 
@@ -18,7 +18,7 @@ A cutting-edge React application that harnesses the power of Fal.ai to generate 
 - 💰 **Cost Transparency**: Real-time cost calculation and pricing display for all AI operations
 - 📱 **Responsive Design**: Optimized experience across desktop, tablet, and mobile devices
 - 🔧 **Developer Experience**: Built-in diagnostics, error boundaries, and comprehensive error handling
-- 🚀 **Pure Fal.ai Integration**: Complete migration from Google services to Fal.ai's superior AI platform
+- 🚀 **Fal.ai AI Models**: Migration from Google Gemini to Fal.ai's superior AI platform (authentication unchanged)
 
 ## 🚀 Quick Start
 
@@ -86,13 +86,12 @@ npm run preview  # Preview production build locally
   - Tree-shaken dependencies
   - Compressed assets for faster loading
 
-## 🔄 Migration Completed: Google → Fal.ai
+## 🔄 AI Model Migration: Google Gemini → Fal.ai
 
-✅ **Successfully migrated from Google Gemini API to Fal.ai**
+✅ **Successfully migrated AI models from Google Gemini to Fal.ai**
 - **Image Generation**: Replaced Gemini with FLUX.1 [schnell] and [dev] models
-- **Video Generation**: Replaced Gemini with Hailuo-02 Pro and Framepack models
-- **UI Updates**: Removed all Google branding and references
-- **Authentication**: Replaced "Continue with Google" with "Quick Demo Access"
+- **Video Generation**: Replaced Gemini with Hailuo-02 Pro and Framepack models  
+- **Authentication**: Google Sign-in remains unchanged (demo functionality)
 - **Cost Optimization**: Better pricing with Fal.ai's competitive rates
 - **Performance**: Improved generation quality and speed
 
@@ -129,7 +128,7 @@ FAL_KEY=your_fal_ai_api_key_here
 
 ### Project Structure
 ```
-Fal.ai-Studio/
+Photo-Studio/
 ├── components/              # React UI components
 │   ├── icons/              # Custom SVG icons (including FalIcon)
 │   ├── ErrorBoundary.tsx   # Error handling wrapper
@@ -148,7 +147,7 @@ Fal.ai-Studio/
 ├── types.ts                # TypeScript type definitions
 ├── App.tsx                 # Main application component
 ├── index.tsx              # Application entry point
-├── index.html             # Updated title: "Fal.ai Studio"
+├── index.html             # HTML entry point
 ├── vite.config.ts         # Vite config with cache-busting
 └── .env.local             # FAL_KEY configuration
 ```
