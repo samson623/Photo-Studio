@@ -7,6 +7,8 @@ import { SaveIcon } from './icons/SaveIcon';
 import { useAuth } from '../context/AuthContext';
 import { PLANS } from '../data/plans';
 import { ImageDropzone, ImageFile } from './ImageDropzone';
+import SocialMediaUpload from './SocialMediaUpload';
+import { getAspectRatioForPlatform } from '../data/platformSpecs';
 
 const suggestionChips = ["Remove people", "phone -> banana", "Side angle", "Studio Ghibli style", "Colorize B&W", "Isometric"];
 
@@ -27,6 +29,21 @@ const dataUrlToFile = async (dataUrl: string, filename: string): Promise<File> =
     return new File([blob], filename, { type: blob.type });
 };
 
+// Map aspect ratios to Flux image sizes
+const aspectRatioToImageSize = (aspectRatio: string): ImageSize => {
+    const ratioMap: { [key: string]: ImageSize } = {
+        '1:1': 'square_hd',
+        '4:3': 'portrait_4_3',
+        '3:4': 'landscape_4_3',
+        '16:9': 'landscape_16_9',
+        '9:16': 'portrait_16_9',
+        '1.91:1': 'landscape_16_9', // Close to 16:9
+        '3:1': 'landscape_16_9', // Use 16:9 as closest
+        '4:1': 'landscape_16_9', // Use 16:9 as closest
+    };
+    return ratioMap[aspectRatio] || 'square_hd';
+};
+
 const GenerateImage: React.FC<GenerateImageProps> = ({ onUseForVideo }) => {
     const { user, incrementImageUsage, addToGallery } = useAuth();
     const [prompt, setPrompt] = useState<string>('');
@@ -35,17 +52,30 @@ const GenerateImage: React.FC<GenerateImageProps> = ({ onUseForVideo }) => {
     const [imageSize, setImageSize] = useState<ImageSize>('square_hd');
     const [strength, setStrength] = useState<number>(0.8);
     const [outputImage, setOutputImage] = useState<string | null>(null);
+    const [outputImageBlob, setOutputImageBlob] = useState<Blob | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [isSaved, setIsSaved] = useState<boolean>(false);
     const [mode, setMode] = useState<'generate' | 'edit'>('generate');
+    const [showSocialUpload, setShowSocialUpload] = useState<boolean>(false);
+    const [targetPlatform, setTargetPlatform] = useState<string>('');
+    const [targetPostType, setTargetPostType] = useState<string>('');
 
     const handleClear = () => {
         setPrompt('');
         setImage1(null);
         setOutputImage(null);
+        setOutputImageBlob(null);
         setError(null);
         setIsSaved(false);
+        setShowSocialUpload(false);
+    };
+
+    const handlePlatformSelect = (platform: string, postType: string, aspectRatio: string) => {
+        setTargetPlatform(platform);
+        setTargetPostType(postType);
+        const newImageSize = aspectRatioToImageSize(aspectRatio);
+        setImageSize(newImageSize);
     };
 
     const handleFileChange1 = (file: File) => {
@@ -89,6 +119,11 @@ const GenerateImage: React.FC<GenerateImageProps> = ({ onUseForVideo }) => {
                 result = await editImage(prompt, image1!.file, strength, model);
             }
             setOutputImage(result);
+            
+            // Store the blob for potential upload
+            const blob = await dataUrlToBlob(result);
+            setOutputImageBlob(blob);
+            
             incrementImageUsage();
         } catch (err) {
             setError(err instanceof Error ? err.message : "An unknown error occurred.");
@@ -211,6 +246,26 @@ const GenerateImage: React.FC<GenerateImageProps> = ({ onUseForVideo }) => {
                         </div>
                     </div>
 
+                    {/* Platform Selection for Pre-Generation */}
+                    <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
+                        <h3 className="text-lg font-semibold text-white mb-4">Target Platform (Optional)</h3>
+                        <p className="text-sm text-gray-400 mb-4">
+                            Select a social media platform to automatically optimize dimensions for that platform.
+                        </p>
+                        <SocialMediaUpload
+                            mediaType="image"
+                            generationMode={true}
+                            onPlatformSelect={handlePlatformSelect}
+                        />
+                        {targetPlatform && (
+                            <div className="mt-3 p-3 bg-blue-900/30 rounded-lg">
+                                <p className="text-xs text-blue-300">
+                                    Image will be generated with {imageSize} dimensions optimized for {targetPlatform}.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
                         <label htmlFor="prompt" className="text-lg font-semibold text-white block">PROMPT</label>
                         <p className="text-sm text-gray-400 mb-2">
@@ -278,18 +333,24 @@ const GenerateImage: React.FC<GenerateImageProps> = ({ onUseForVideo }) => {
                            {outputImage && (
                             <div className="w-full flex flex-col items-center gap-4">
                                <img src={outputImage} alt="Generated output" className="max-w-full max-h-full object-contain rounded-md" />
-                               <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                   <button onClick={handleSaveToGallery} disabled={isSaved} className="flex-1 px-4 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-500 transition-colors flex items-center justify-center disabled:bg-green-800 disabled:cursor-not-allowed">
+                               <div className="w-full grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+                                   <button onClick={handleSaveToGallery} disabled={isSaved} className="px-4 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-500 transition-colors flex items-center justify-center disabled:bg-green-800 disabled:cursor-not-allowed">
                                      <SaveIcon className="w-5 h-5 mr-2" />
                                      {isSaved ? 'Saved' : 'Save'}
                                    </button>
-                                   <button onClick={handleDownload} className="flex-1 px-4 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-500 transition-colors flex items-center justify-center">
+                                   <button onClick={handleDownload} className="px-4 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-500 transition-colors flex items-center justify-center">
                                      <DownloadIcon className="w-5 h-5 mr-2" />
                                      Download
                                    </button>
-                                   <button onClick={handleUseForVideo} className="flex-1 px-4 py-2 rounded-md bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition-colors flex items-center justify-center">
+                                   <button onClick={handleUseForVideo} className="px-4 py-2 rounded-md bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition-colors flex items-center justify-center">
                                       <VideoIcon className="w-5 h-5 mr-2" />
                                      Use for Video
+                                   </button>
+                                   <button 
+                                     onClick={() => setShowSocialUpload(!showSocialUpload)} 
+                                     className="px-4 py-2 rounded-md bg-purple-600 text-white font-semibold hover:bg-purple-500 transition-colors flex items-center justify-center"
+                                   >
+                                     📱 Social Upload
                                    </button>
                                </div>
                             </div>
@@ -297,6 +358,16 @@ const GenerateImage: React.FC<GenerateImageProps> = ({ onUseForVideo }) => {
                            {!isLoading && !error && !outputImage && <div className="text-gray-500 text-center p-4">Your results will display after you generate.</div>}
                         </div>
                     </div>
+
+                    {/* Social Media Upload Section */}
+                    {showSocialUpload && outputImageBlob && (
+                        <SocialMediaUpload
+                            mediaFile={outputImageBlob}
+                            mediaUrl={outputImage || undefined}
+                            mediaType="image"
+                            generationMode={false}
+                        />
+                    )}
 
                     <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
                         <h3 className="text-lg font-semibold text-white mb-4">How it works</h3>

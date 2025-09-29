@@ -8,6 +8,7 @@ import GenerateVideo from './components/GenerateVideo';
 import Usage from './components/Usage';
 import { AuthProvider } from './context/AuthContext';
 import Gallery from './components/Gallery';
+import SocialMediaManager from './components/SocialMediaManager';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.Dashboard);
@@ -30,6 +31,8 @@ const App: React.FC = () => {
         return <Usage />;
       case Page.Gallery:
         return <Gallery onUseForVideo={navigateToVideoWithImage} />;
+      case Page.Social:
+        return <SocialMediaManager />;
       default:
         return <Dashboard />;
     }

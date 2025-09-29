@@ -5,6 +5,7 @@ export enum Page {
   Video = 'Generate - Video',
   Billing = 'Billing',
   Gallery = 'Gallery',
+  Social = 'Social Media',
 }
 
 export type PlanTier = 'Free' | 'Starter' | 'Creator' | 'Pro';

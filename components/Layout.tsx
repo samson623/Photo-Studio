@@ -31,7 +31,7 @@ const NavItem: React.FC<{
 };
 
 const Layout: React.FC<LayoutProps> = ({ children, currentPage, setCurrentPage }) => {
-  const navItems = [Page.Dashboard, Page.Image, Page.Video, Page.Gallery, Page.Billing];
+  const navItems = [Page.Dashboard, Page.Image, Page.Video, Page.Gallery, Page.Social, Page.Billing];
   const { user, signOut } = useAuth();
 
   if (!user) {
