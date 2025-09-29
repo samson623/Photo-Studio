@@ -7,6 +7,7 @@ import { SaveIcon } from './icons/SaveIcon';
 import { useAuth } from '../context/AuthContext';
 import { PLANS } from '../data/plans';
 import NarratedVideoPlayer from './NarratedVideoPlayer';
+import SocialMediaUpload from './SocialMediaUpload';
 
 interface GenerateVideoProps {
   initialImage: File | null;
@@ -27,6 +28,10 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
     const [isSaved, setIsSaved] = useState<boolean>(false);
     const [videoModel, setVideoModel] = useState<VideoModel>('hailuo');
     const [duration] = useState<number>(6); // Hailuo: 6s, Framepack: 5s
+    const [showSocialUpload, setShowSocialUpload] = useState<boolean>(false);
+    const [outputVideoBlob, setOutputVideoBlob] = useState<Blob | null>(null);
+    const [targetPlatform, setTargetPlatform] = useState<string>('');
+    const [targetPostType, setTargetPostType] = useState<string>('');
 
     useEffect(() => {
         if (initialImage) {
@@ -45,9 +50,17 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
         setIsSaved(false);
     };
 
+    const handlePlatformSelect = (platform: string, postType: string, aspectRatio: string) => {
+        setTargetPlatform(platform);
+        setTargetPostType(postType);
+        // For video, we could adjust model or parameters based on platform
+        // For now, we'll just track the selection
+    };
+
     const handleClear = () => {
         setPrompt('');
         setNarrationScript('');
+        setShowSocialUpload(false);
         setImage(null);
         setOutputVideoUrl(null);
         setError(null);
@@ -78,6 +91,12 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
         try {
             const url = await generateVideo(prompt, image?.file || null, setProgressMessage, videoModel);
             setOutputVideoUrl(url);
+            
+            // Fetch and store the video blob for potential upload
+            const response = await fetch(url);
+            const blob = await response.blob();
+            setOutputVideoBlob(blob);
+            
             incrementVideoUsage(videoDuration);
         } catch (err) {
             let errorMessage = "An unknown error occurred during video generation.";
@@ -160,6 +179,26 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
                         </div>
                     </div>
 
+                    {/* Platform Selection for Pre-Generation */}
+                    <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
+                        <h3 className="text-lg font-semibold text-white mb-4">Target Platform (Optional)</h3>
+                        <p className="text-sm text-gray-400 mb-4">
+                            Select a social media platform to optimize your video for that platform's requirements.
+                        </p>
+                        <SocialMediaUpload
+                            mediaType="video"
+                            generationMode={true}
+                            onPlatformSelect={handlePlatformSelect}
+                        />
+                        {targetPlatform && (
+                            <div className="mt-3 p-3 bg-blue-900/30 rounded-lg">
+                                <p className="text-xs text-blue-300">
+                                    Video will be optimized for {targetPlatform} - {targetPostType}.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+
                     <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
                         <label htmlFor="prompt" className="text-lg font-semibold text-white block">PROMPT</label>
                         <p className="text-sm text-gray-400 mb-2">Describe the video you want to create.</p>
@@ -225,18 +264,24 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
                            {outputVideoUrl && (
                                <div className="w-full flex flex-col items-center gap-4">
                                    <NarratedVideoPlayer src={outputVideoUrl} script={narrationScript} />
-                                    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                       <button onClick={handleSaveToGallery} disabled={isSaved} className="w-full px-4 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-500 transition-colors flex items-center justify-center disabled:bg-green-800 disabled:cursor-not-allowed">
+                                    <div className="w-full grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-3">
+                                       <button onClick={handleSaveToGallery} disabled={isSaved} className="px-4 py-2 rounded-md bg-green-600 text-white font-semibold hover:bg-green-500 transition-colors flex items-center justify-center disabled:bg-green-800 disabled:cursor-not-allowed">
                                            <SaveIcon className="w-5 h-5 mr-2" />
                                            {isSaved ? 'Saved' : 'Save'}
                                        </button>
-                                       <button onClick={handleDownload} className="w-full px-4 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-500 transition-colors flex items-center justify-center">
+                                       <button onClick={handleDownload} className="px-4 py-2 rounded-md bg-gray-600 text-white font-semibold hover:bg-gray-500 transition-colors flex items-center justify-center">
                                            <DownloadIcon className="w-5 h-5 mr-2" />
                                            Download Video
                                        </button>
-                                       <button onClick={handleDownloadScript} disabled={!narrationScript} className="w-full px-4 py-2 rounded-md bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition-colors flex items-center justify-center disabled:bg-indigo-800 disabled:cursor-not-allowed">
+                                       <button onClick={handleDownloadScript} disabled={!narrationScript} className="px-4 py-2 rounded-md bg-indigo-600 text-white font-semibold hover:bg-indigo-500 transition-colors flex items-center justify-center disabled:bg-indigo-800 disabled:cursor-not-allowed">
                                            <DownloadIcon className="w-5 h-5 mr-2" />
                                            Download Script
+                                       </button>
+                                       <button 
+                                         onClick={() => setShowSocialUpload(!showSocialUpload)} 
+                                         className="px-4 py-2 rounded-md bg-purple-600 text-white font-semibold hover:bg-purple-500 transition-colors flex items-center justify-center"
+                                       >
+                                         📱 Social Upload
                                        </button>
                                    </div>
                                    <p className="text-xs text-gray-400 mt-2 text-center">
@@ -247,6 +292,17 @@ const GenerateVideo: React.FC<GenerateVideoProps> = ({ initialImage, clearInitia
                            {!isLoading && !error && !outputVideoUrl && <div className="text-gray-500 text-center p-4">Your generated video will appear here.</div>}
                         </div>
                     </div>
+                    
+                    {/* Social Media Upload Section */}
+                    {showSocialUpload && outputVideoBlob && (
+                        <SocialMediaUpload
+                            mediaFile={outputVideoBlob}
+                            mediaUrl={outputVideoUrl || undefined}
+                            mediaType="video"
+                            generationMode={false}
+                        />
+                    )}
+                    
                     <div className="bg-[#111832] p-6 rounded-lg border border-gray-700">
                         <h3 className="text-lg font-semibold text-white mb-4">How it works</h3>
                         <ul className="space-y-3 text-sm text-gray-400">
